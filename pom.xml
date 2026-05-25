@@ -1,97 +1,60 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vinay</groupId>
+
     <artifactId>hello-world-lambda</artifactId>
-    <version>1.0.0</version>
+
+    <version>1.0</version>
+
     <packaging>jar</packaging>
 
-    <name>hello-world-lambda</name>
-    <description>AWS Lambda Hello World - Java</description>
-
     <properties>
-        <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Dependency versions -->
-        <aws.lambda.core.version>1.2.3</aws.lambda.core.version>
-        <aws.lambda.events.version>3.11.4</aws.lambda.events.version>
-        <junit.version>5.10.2</junit.version>
     </properties>
 
     <dependencies>
 
-        <!-- AWS Lambda Core -->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-core</artifactId>
-            <version>${aws.lambda.core.version}</version>
-        </dependency>
-
-        <!-- AWS Lambda Events (API Gateway, SQS, S3, etc.) -->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-lambda-java-events</artifactId>
-            <version>${aws.lambda.events.version}</version>
-        </dependency>
-
-        <!-- JUnit 5 for testing -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <version>1.2.3</version>
         </dependency>
 
     </dependencies>
 
     <build>
+
         <plugins>
 
-            <!-- Maven Compiler Plugin -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
 
-            <!-- Maven Shade Plugin - produces a fat JAR for Lambda deployment -->
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.2</version>
+
+                <version>3.4.1</version>
+
                 <executions>
+
                     <execution>
+
                         <phase>package</phase>
+
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
-            <!-- Surefire for JUnit 5 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                    </execution>
+
+                </executions>
+
             </plugin>
 
         </plugins>
+
     </build>
 
 </project>

@@ -1,87 +1,23 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
+
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  hello-world-lambda
-  A simple Java Lambda function exposed via API Gateway.
 
-# ------------------------------------------------------------
-# Global defaults applied to all Lambda functions
-# ------------------------------------------------------------
-Globals:
-  Function:
-    Runtime: java17
-    Architectures:
-      - x86_64
-    MemorySize: 512
-    Timeout: 30
-    Environment:
-      Variables:
-        ENV: !Ref Env
-
-# ------------------------------------------------------------
-# Parameters
-# ------------------------------------------------------------
-Parameters:
-  Env:
-    Type: String
-    Default: dev
-    AllowedValues:
-      - dev
-      - stage
-      - prd
-    Description: Deployment environment
-
-# ------------------------------------------------------------
-# Resources
-# ------------------------------------------------------------
 Resources:
 
   HelloWorldFunction:
+
     Type: AWS::Serverless::Function
+
     Properties:
-      FunctionName: !Sub "hello-world-${Env}"
-      Handler: com.vinay.Handler::handleRequest
-      CodeUri: target/hello-world-lambda-1.0.0.jar
-      Description: "Returns a Hello World JSON response"
-      Role: !GetAtt HelloWorldFunctionRole.Arn
-      Events:
-        HelloWorldApi:
-          Type: Api
-          Properties:
-            RestApiId: !Ref HelloWorldApi
-            Path: /hello
-            Method: GET
 
-  # API Gateway
-  HelloWorldApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: !Sub "hello-world-api-${Env}"
-      StageName: !Ref Env
+      FunctionName: hello-world-lambda
 
-  # IAM Role for the Lambda
-  HelloWorldFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "hello-world-lambda-role-${Env}"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Runtime: java17
 
-# ------------------------------------------------------------
-# Outputs
-# ------------------------------------------------------------
-Outputs:
-  HelloWorldFunctionArn:
-    Description: Lambda function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
+      Handler: com.vinay.Handler
 
-  HelloWorldApiUrl:
-    Description: API Gateway endpoint URL
-    Value: !Sub "https://${HelloWorldApi}.execute-api.${AWS::Region}.amazonaws.com/${Env}/hello"
+      CodeUri: target/hello-world-lambda-1.0.jar
+
+      MemorySize: 512
+
+      Timeout: 30

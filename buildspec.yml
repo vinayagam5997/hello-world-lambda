@@ -1,48 +1,23 @@
 version: 0.2
 
-env:
-  variables:
-    JAVA_HOME: "/usr/lib/jvm/java-17-amazon-corretto"
-  # Uncomment to pull secrets from SSM or Secrets Manager
-  # parameter-store:
-  #   MY_SECRET: "/my/param/path"
-
 phases:
 
   install:
+
     runtime-versions:
       java: corretto17
-    commands:
-      - echo "=== Install phase ==="
-      - java -version
-      - mvn -version
-
-  pre_build:
-    commands:
-      - echo "=== Pre-build phase: running tests ==="
-      - mvn test --no-transfer-progress
 
   build:
-    commands:
-      - echo "=== Build phase: packaging Lambda JAR ==="
-      - mvn package -DskipTests --no-transfer-progress
-      - echo "Build completed at $(date)"
 
-  post_build:
     commands:
-      - echo "=== Post-build phase: preparing SAM artifacts ==="
-      - aws cloudformation package
-          --template-file template.yaml
-          --s3-bucket $S3_BUCKET
-          --output-template-file packaged-template.yaml
-      - echo "Packaging complete"
+
+      - echo Build Started
+
+      - mvn clean package
 
 artifacts:
-  files:
-    - packaged-template.yaml
-    - target/hello-world-lambda-1.0.0.jar
-  discard-paths: no
 
-cache:
-  paths:
-    - "/root/.m2/**/*"
+  files:
+
+    - target/**/*
+    - template.yaml
