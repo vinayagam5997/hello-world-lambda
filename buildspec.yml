@@ -11,7 +11,7 @@ phases:
 
     commands:
 
-      - echo Build Started
+      - echo "Build Started"
 
       - mvn clean package
 
@@ -19,5 +19,5 @@ artifacts:
 
   files:
 
-    - target/**/*
+    - target/hello-world-lambda-1.0.jar
     - template.yaml
