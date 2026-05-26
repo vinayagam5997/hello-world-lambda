@@ -8,6 +8,6 @@ public class Handler implements RequestHandler<Object, String> {
     @Override
     public String handleRequest(Object input, Context context) {
 
-        return "Hello From CI CD Pipeline";
+        return "Hello From CI CD Pipeline , Automatic trigger working";
     }
 }
