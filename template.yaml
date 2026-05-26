@@ -1,53 +1,59 @@
 AWSTemplateFormatVersion: '2010-09-09'
-
 Transform: AWS::Serverless-2016-10-31
+Description: Hello World Lambda with API Gateway (no auth)
+
+Globals:
+  Function:
+    Runtime: java17
+    MemorySize: 512
+    Timeout: 30
 
 Resources:
 
+  # --- API Gateway ---
+  HelloWorldApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: hello-world-api
+      StageName: dev
+
+  # --- Lambda Function ---
   HelloWorldFunction:
-
     Type: AWS::Serverless::Function
-
     Properties:
-
       FunctionName: hello-world-lambda
-
-      Runtime: java17
-
-      Handler: com.vinay.Handler
-
+      Handler: com.vinay.vinayHandler::handleRequest
       CodeUri: target/hello-world-lambda-1.0.jar
-
-      MemorySize: 512
-
-      Timeout: 30
-
       Role: !GetAtt HelloWorldLambdaRole.Arn
+      Events:
+        GetHello:
+          Type: Api
+          Properties:
+            RestApiId: !Ref HelloWorldApi
+            Path: /hello
+            Method: GET
 
+  # --- IAM Role ---
   HelloWorldLambdaRole:
-
     Type: AWS::IAM::Role
-
     Properties:
-
       RoleName: hello-world-lambda-role
-
       AssumeRolePolicyDocument:
-
         Version: '2012-10-17'
-
         Statement:
-
           - Effect: Allow
-
             Principal:
-
-              Service:
-                - lambda.amazonaws.com
-
-            Action:
-              - sts:AssumeRole
-
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
-
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+# --- Outputs ---
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint — use this to call your Lambda"
+    Value: !Sub "https://${HelloWorldApi}.execute-api.${AWS::Region}.amazonaws.com/dev/hello"
+
+  LambdaArn:
+    Description: "Lambda function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
