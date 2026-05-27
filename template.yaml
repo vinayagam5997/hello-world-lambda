@@ -1,21 +1,44 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Hello World Lambda with API Gateway (no auth)
+Description: Hello World Lambda with API Gateway + Cognito Auth
 
+# -------------------------------------------------------
+# Parameters
+# -------------------------------------------------------
+Parameters:
+  CognitoUserPoolArn:
+    Type: String
+    Description: ARN of the existing Cognito User Pool
+    Default: "arn:aws:cognito-idp:us-east-1:006296771344:userpool/us-east-1_wK09KSLBQ"
+
+
+# -------------------------------------------------------
+# Globals
+# -------------------------------------------------------
 Globals:
   Function:
     Runtime: java17
     MemorySize: 512
     Timeout: 30
 
+# -------------------------------------------------------
+# Resources
+# -------------------------------------------------------
 Resources:
 
-  # --- API Gateway ---
+  # --- API Gateway with Cognito Authorizer ---
   HelloWorldApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: hello-world-api
       StageName: dev
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref CognitoUserPoolArn
+            Identity:
+              Header: Authorization   # reads Bearer token from this header
 
   # --- Lambda Function ---
   HelloWorldFunction:
@@ -32,6 +55,8 @@ Resources:
             RestApiId: !Ref HelloWorldApi
             Path: /hello
             Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer  # protect this endpoint
 
   # --- IAM Role ---
   HelloWorldLambdaRole:
@@ -48,10 +73,12 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
-# --- Outputs ---
+# -------------------------------------------------------
+# Outputs
+# -------------------------------------------------------
 Outputs:
   ApiUrl:
-    Description: "API Gateway endpoint — use this to call your Lambda"
+    Description: "API Gateway endpoint URL"
     Value: !Sub "https://${HelloWorldApi}.execute-api.${AWS::Region}.amazonaws.com/dev/hello"
 
   LambdaArn:
