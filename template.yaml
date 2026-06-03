@@ -1,46 +1,40 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Hello World Lambda with API Gateway + Cognito Auth
+Description: Hello World Lambda inside VPC
 
-# -------------------------------------------------------
-# Parameters
-# -------------------------------------------------------
 Parameters:
   CognitoUserPoolArn:
     Type: String
-    Description: ARN of the existing Cognito User Pool
     Default: "arn:aws:cognito-idp:us-east-1:006296771344:userpool/us-east-1_wK09KSLBQ"
 
-
-# -------------------------------------------------------
-# Globals
-# -------------------------------------------------------
 Globals:
   Function:
     Runtime: java17
     MemorySize: 512
     Timeout: 30
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - subnet-043a7b786b6736129
+        - subnet-0d81c6e86baf1f661
 
-# -------------------------------------------------------
-# Resources
-# -------------------------------------------------------
 Resources:
 
-  # --- API Gateway with Cognito Authorizer ---
   HelloWorldApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: hello-world-api
       StageName: dev
+      Description: !Sub "Deployed at ${AWS::StackName}"
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !Ref CognitoUserPoolArn
             Identity:
-              Header: Authorization   # reads Bearer token from this header
+              Header: Authorization
 
-  # --- Lambda Function ---
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -56,11 +50,23 @@ Resources:
             Path: /hello
             Method: GET
             Auth:
-              Authorizer: CognitoAuthorizer  # protect this endpoint
+              Authorizer: CognitoAuthorizer
               AuthorizationScopes:
                 - vinay/read
 
-  # --- IAM Role ---
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: hello-world-lambda-sg
+      GroupDescription: Security group for Lambda
+      VpcId: vpc-0929fb681224a00c4
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: Allow HTTPS outbound
+
   HelloWorldLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -74,15 +80,10 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
-# -------------------------------------------------------
-# Outputs
-# -------------------------------------------------------
 Outputs:
   ApiUrl:
-    Description: "API Gateway endpoint URL"
     Value: !Sub "https://${HelloWorldApi}.execute-api.${AWS::Region}.amazonaws.com/dev/hello"
-
   LambdaArn:
-    Description: "Lambda function ARN"
     Value: !GetAtt HelloWorldFunction.Arn
