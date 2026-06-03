@@ -57,7 +57,7 @@ Resources:
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer  # protect this endpoint
-              Scopes:
+              AuthorizationScopes:
                 - vinay/read
 
   # --- IAM Role ---
