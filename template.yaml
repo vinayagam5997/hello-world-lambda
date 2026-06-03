@@ -14,7 +14,7 @@ Globals:
     Timeout: 30
     VpcConfig:
       SecurityGroupIds:
-        - !Ref LambdaSecurityGroup
+        - sg-0940ecbbd5f748776
       SubnetIds:
         - subnet-043a7b786b6736129
         - subnet-0d81c6e86baf1f661
@@ -53,19 +53,6 @@ Resources:
               Authorizer: CognitoAuthorizer
               AuthorizationScopes:
                 - vinay/read
-
-  LambdaSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: hello-world-lambda-sg
-      GroupDescription: Security group for Lambda
-      VpcId: vpc-0929fb681224a00c4
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-          Description: Allow HTTPS outbound
 
   HelloWorldLambdaRole:
     Type: AWS::IAM::Role
